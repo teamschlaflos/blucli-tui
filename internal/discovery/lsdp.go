@@ -285,7 +285,7 @@ func classToType(class uint16) string {
 func lsdpDeviceName(txt map[string]string) string {
 	for _, k := range []string{"name", "device", "devname", "playername", "player", "friendly_name", "label"} {
 		if v := txt[k]; v != "" {
-			return v
+			return NormalizeServiceName(v)
 		}
 	}
 	return ""

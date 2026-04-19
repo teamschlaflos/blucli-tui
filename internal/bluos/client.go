@@ -49,12 +49,19 @@ type StatusOptions struct {
 	ETag           string
 }
 
+type statusAnyElement struct {
+	XMLName xml.Name
+	Value   string     `xml:",chardata"`
+	Attrs   []xml.Attr `xml:",any,attr"`
+}
+
 type Status struct {
 	XMLName xml.Name `xml:"status" json:"-"`
 
-	State string `xml:"-" json:"state,omitempty"`
-	Name  string `xml:"-" json:"name,omitempty"`
-	Model string `xml:"-" json:"model,omitempty"`
+	State  string `xml:"-" json:"state,omitempty"`
+	Name   string `xml:"-" json:"name,omitempty"`
+	Model  string `xml:"-" json:"model,omitempty"`
+	Source string `xml:"-" json:"source,omitempty"`
 
 	Volume int     `xml:"-" json:"volume"`
 	DB     float64 `xml:"-" json:"db,omitempty"`
@@ -95,7 +102,8 @@ type Status struct {
 	ETagAttr string `xml:"etag,attr" json:"-"`
 	ETagElem string `xml:"etag" json:"-"`
 
-	AnyAttrs []xml.Attr `xml:",any,attr" json:"-"`
+	AnyAttrs []xml.Attr         `xml:",any,attr" json:"-"`
+	AnyElems []statusAnyElement `xml:",any" json:"-"`
 }
 
 func (c *Client) Status(ctx context.Context, opts StatusOptions) (Status, error) {
@@ -184,6 +192,8 @@ func (s *Status) normalize() {
 	} else {
 		s.ETag = strings.TrimSpace(s.ETagElem)
 	}
+
+	s.Source = detectPlaybackSource(*s)
 }
 
 type SyncStatusOptions struct {

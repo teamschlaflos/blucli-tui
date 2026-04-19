@@ -1,4 +1,4 @@
-# 🫐 blucli — play, group, and automate BluOS.
+# 🫐 blucli — play, group, automate BluOS, and includes a BlueSound TUI.
 
 BluOS CLI (`blu`) for Bluesound/NAD BluOS players.
 
@@ -20,6 +20,7 @@ Spec: [docs/spec.md](docs/spec.md)
 - Queue/presets/browse: `queue …`, `presets …`, `browse …`, `playlists …`, `inputs …`
 - TuneIn: `tunein search|play` for quick “play X”
 - Spotify Connect: `spotify open` (and optional Web API `spotify login/search/play`)
+- Wiremix-like BlueSound TUI: `tui` for keyboard-first player control
 - Sleep timer: `sleep`
 - Watch: long-poll `Status` / `SyncStatus` (`watch status|sync`)
 - Scripting/safety: `--json`, `--dry-run`, `--trace-http`

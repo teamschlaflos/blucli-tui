@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -194,9 +195,9 @@ func deviceFromEntry(entry *zeroconf.ServiceEntry) (Device, bool) {
 	typ = strings.TrimPrefix(typ, "_")
 	typ = strings.TrimSuffix(typ, "._tcp")
 
-	name := strings.TrimSpace(entry.Instance)
+	name := NormalizeServiceName(entry.Instance)
 	if name == "" {
-		name = strings.TrimSuffix(strings.TrimSpace(entry.HostName), ".")
+		name = NormalizeServiceName(strings.TrimSuffix(strings.TrimSpace(entry.HostName), "."))
 	}
 
 	return Device{
@@ -207,6 +208,46 @@ func deviceFromEntry(entry *zeroconf.ServiceEntry) (Device, bool) {
 		Type:    typ,
 		Version: parseTXT(entry.Text)["version"],
 	}, true
+}
+
+// NormalizeServiceName decodes DNS-SD style escaped bytes (e.g. "\195\188")
+// into UTF-8 and trims surrounding whitespace.
+func NormalizeServiceName(name string) string {
+	name = strings.TrimSpace(name)
+	if name == "" {
+		return ""
+	}
+
+	// DNS-SD instance names can include escaped bytes as \DDD decimal triplets.
+	decoded := make([]byte, 0, len(name))
+	for i := 0; i < len(name); i++ {
+		c := name[i]
+		if c != '\\' {
+			decoded = append(decoded, c)
+			continue
+		}
+		if i+1 >= len(name) {
+			decoded = append(decoded, '\\')
+			continue
+		}
+		// RFC-style escaped byte: \DDD where D are decimal digits.
+		if i+3 < len(name) && isDecDigit(name[i+1]) && isDecDigit(name[i+2]) && isDecDigit(name[i+3]) {
+			v, err := strconv.Atoi(name[i+1 : i+4])
+			if err == nil && v >= 0 && v <= 255 {
+				decoded = append(decoded, byte(v))
+				i += 3
+				continue
+			}
+		}
+		// Generic escaped character fallback.
+		decoded = append(decoded, name[i+1])
+		i++
+	}
+	return strings.TrimSpace(string(decoded))
+}
+
+func isDecDigit(b byte) bool {
+	return b >= '0' && b <= '9'
 }
 
 func pickIPv4(ips []net.IP) net.IP {

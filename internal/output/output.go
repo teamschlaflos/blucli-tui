@@ -98,8 +98,13 @@ func (p *Printer) printDevices(devices []discovery.Device) {
 }
 
 func (p *Printer) printStatus(s bluos.Status) {
-	line := strings.TrimSpace(fmt.Sprintf("%s | vol=%d mute=%t | %s — %s",
+	sourcePart := ""
+	if src := strings.TrimSpace(s.Source); src != "" {
+		sourcePart = " src=" + src + " |"
+	}
+	line := strings.TrimSpace(fmt.Sprintf("%s |%s vol=%d mute=%t | %s — %s",
 		strings.TrimSpace(s.State),
+		sourcePart,
 		s.Volume,
 		s.Mute,
 		strings.TrimSpace(s.Artist),

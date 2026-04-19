@@ -16,7 +16,7 @@ func TestRunCompletionsBash(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("exit code = %d; stderr=%q", code, errOut.String())
 	}
-	if got := out.String(); !strings.Contains(got, "# bash completion for blu") || !strings.Contains(got, "complete -F _blu_complete blu") {
+	if got := out.String(); !strings.Contains(got, "# bash completion for blu") || !strings.Contains(got, "complete -F _blu_complete blu") || !strings.Contains(got, " tui ") {
 		t.Fatalf("stdout = %q; want bash completion script", got)
 	}
 }

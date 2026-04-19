@@ -11,9 +11,9 @@ func TestParseDevice(t *testing.T) {
 		host string
 		port int
 	}{
-		{name: "HostOnly", in: "192.168.1.10", host: "192.168.1.10", port: 11000},
-		{name: "HostPort", in: "192.168.1.10:12000", host: "192.168.1.10", port: 12000},
-		{name: "HTTPURL", in: "http://192.168.1.10:12000", host: "192.168.1.10", port: 12000},
+		{name: "HostOnly", in: "192.0.2.10", host: "192.0.2.10", port: 11000},
+		{name: "HostPort", in: "192.0.2.10:12000", host: "192.0.2.10", port: 12000},
+		{name: "HTTPURL", in: "http://192.0.2.10:12000", host: "192.0.2.10", port: 12000},
 	}
 
 	for _, tt := range tests {

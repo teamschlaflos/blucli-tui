@@ -82,9 +82,12 @@ func Run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 	}
 
 	cache, err := config.LoadDiscoveryCache(paths.CachePath)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		fmt.Fprintf(stderr, "cache: %v\n", err)
-		return 1
+	cacheStatus := ""
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			cache = config.DiscoveryCache{}
+			cacheStatus = "Invalid cache state (ignoring)"
+		}
 	}
 
 	out := output.New(output.Options{
@@ -161,6 +164,8 @@ func Run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		return cmdSpotify(ctx, out, paths, cfg, cache, *flagDevice, *flagDiscover, *flagDiscTO, *flagTimeout, *flagDryRun, traceWriter(*flagTraceHTTP, *flagDryRun, stderr), cmdArgs[1:])
 	case "sleep":
 		return cmdSleep(ctx, out, cfg, cache, *flagDevice, *flagDiscover, *flagDiscTO, *flagTimeout, *flagDryRun, traceWriter(*flagTraceHTTP, *flagDryRun, stderr))
+	case "tui":
+		return cmdTUI(ctx, out, cfg, cache, paths.CachePath, cacheStatus, *flagDevice, *flagDiscover, *flagDiscTO, *flagTimeout, *flagDryRun, traceWriter(*flagTraceHTTP, *flagDryRun, stderr), cmdArgs[1:])
 	case "diag":
 		return cmdDiag(ctx, out, cfg, cache, *flagDevice, *flagDiscover, *flagDiscTO, *flagTimeout, *flagDryRun, traceWriter(*flagTraceHTTP, *flagDryRun, stderr))
 	case "doctor":
@@ -201,6 +206,7 @@ func usage(w io.Writer) {
 	fmt.Fprintln(w, "  tunein search|play [--pick <n>] [--id <id>] <query>")
 	fmt.Fprintln(w, "  spotify login|logout|open|devices|search|play")
 	fmt.Fprintln(w, "  sleep")
+	fmt.Fprintln(w, "  tui")
 	fmt.Fprintln(w, "  diag|doctor")
 	fmt.Fprintln(w, "  raw <path> [--param k=v ...] [--write]")
 	fmt.Fprintln(w)
@@ -225,6 +231,19 @@ func usageCommand(w io.Writer, cmd string) bool {
 		fmt.Fprintln(w, "  blu spotify devices")
 		fmt.Fprintln(w, "  blu spotify search <query>")
 		fmt.Fprintln(w, "  blu spotify play [--type auto|artist|track] [--pick <n>] [--market US] [--wait <dur>] [--spotify-device <id>] [--no-activate] <query>")
+		return true
+	case "tui":
+		fmt.Fprintln(w, "Usage:")
+		fmt.Fprintln(w, "  blu tui")
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "Keys:")
+		fmt.Fprintln(w, "  Up/Down or j/k: select player")
+		fmt.Fprintln(w, "  Left/Right or +/-: adjust selected player volume")
+		fmt.Fprintln(w, "  Space: play/pause toggle on selected player/group")
+		fmt.Fprintln(w, "  m: toggle mute on selected player/group")
+		fmt.Fprintln(w, "  g: group/ungroup workflow")
+		fmt.Fprintln(w, "  r: refresh")
+		fmt.Fprintln(w, "  q: quit")
 		return true
 	default:
 		return false

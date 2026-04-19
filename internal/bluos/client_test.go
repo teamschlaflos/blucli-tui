@@ -118,12 +118,12 @@ func TestAddSlaveRequest(t *testing.T) {
 	baseURL, _ := url.Parse(srv.URL)
 	client := NewClient(baseURL, Options{})
 
-	if err := client.AddSlave(context.Background(), AddSlaveOptions{SlaveHost: "192.168.1.50", SlavePort: 11000, GroupName: "Kitchen"}); err != nil {
+	if err := client.AddSlave(context.Background(), AddSlaveOptions{SlaveHost: "192.0.2.50", SlavePort: 11000, GroupName: "Kitchen"}); err != nil {
 		t.Fatalf("AddSlave() err = %v", err)
 	}
 
-	if u := <-got; u != "/AddSlave?group=Kitchen&port=11000&slave=192.168.1.50" {
-		t.Fatalf("url = %q; want /AddSlave?group=Kitchen&port=11000&slave=192.168.1.50", u)
+	if u := <-got; u != "/AddSlave?group=Kitchen&port=11000&slave=192.0.2.50" {
+		t.Fatalf("url = %q; want /AddSlave?group=Kitchen&port=11000&slave=192.0.2.50", u)
 	}
 }
 

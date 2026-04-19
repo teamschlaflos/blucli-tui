@@ -10,11 +10,33 @@ import (
 )
 
 type DiscoveryCache struct {
-	UpdatedAt time.Time `json:"updated_at"`
-	Devices   []Device  `json:"devices"`
+	UpdatedAt time.Time         `json:"updated_at"`
+	Devices   []Device          `json:"devices"`
+	Rows      []CachedPlayerRow `json:"rows,omitempty"`
+}
+
+type CachedPlayerRow struct {
+	Device        Device `json:"device"`
+	Name          string `json:"name,omitempty"`
+	Volume        int    `json:"volume,omitempty"`
+	Mute          bool   `json:"mute,omitempty"`
+	PlaybackState string `json:"playback_state,omitempty"`
+	Indent        int    `json:"indent,omitempty"`
+	IsGroup       bool   `json:"is_group,omitempty"`
+	TellSlaves    bool   `json:"tell_slaves,omitempty"`
+	NowPlaying    string `json:"now_playing,omitempty"`
+	Source        string `json:"source,omitempty"`
+	Grouping      string `json:"grouping,omitempty"`
+	GroupDetail   string `json:"group_detail,omitempty"`
+	StatusDetail  string `json:"status_detail,omitempty"`
+	Kind          string `json:"kind,omitempty"`
 }
 
 func NewDiscoveryCache(updatedAt time.Time, devices []Device) DiscoveryCache {
+	return NewDiscoveryCacheWithRows(updatedAt, devices, nil)
+}
+
+func NewDiscoveryCacheWithRows(updatedAt time.Time, devices []Device, rows []CachedPlayerRow) DiscoveryCache {
 	out := make([]Device, 0, len(devices))
 	for _, device := range devices {
 		if device.Host == "" || device.Port == 0 {
@@ -25,7 +47,17 @@ func NewDiscoveryCache(updatedAt time.Time, devices []Device) DiscoveryCache {
 		}
 		out = append(out, device)
 	}
-	return DiscoveryCache{UpdatedAt: updatedAt, Devices: out}
+	outRows := make([]CachedPlayerRow, 0, len(rows))
+	for _, row := range rows {
+		if row.Device.Host == "" || row.Device.Port == 0 {
+			continue
+		}
+		if row.Device.ID == "" {
+			row.Device.ID = fmt.Sprintf("%s:%d", row.Device.Host, row.Device.Port)
+		}
+		outRows = append(outRows, row)
+	}
+	return DiscoveryCache{UpdatedAt: updatedAt, Devices: out, Rows: outRows}
 }
 
 func LoadDiscoveryCache(path string) (DiscoveryCache, error) {

@@ -44,3 +44,17 @@ func TestItoa(t *testing.T) {
 		t.Fatalf("itoa(-7)=%q", got)
 	}
 }
+
+func TestNormalizeServiceName(t *testing.T) {
+	t.Parallel()
+
+	if got := NormalizeServiceName("Player\\032\\195\\156"); got != "Player Ü" {
+		t.Fatalf("NormalizeServiceName escaped = %q; want Player Ü", got)
+	}
+	if got := NormalizeServiceName("Device\\032One"); got != "Device One" {
+		t.Fatalf("NormalizeServiceName space = %q; want Device One", got)
+	}
+	if got := NormalizeServiceName("  plain  "); got != "plain" {
+		t.Fatalf("NormalizeServiceName plain = %q; want plain", got)
+	}
+}

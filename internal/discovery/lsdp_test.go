@@ -16,7 +16,7 @@ func TestParseLSDPAnnounce(t *testing.T) {
 	// len, 'A', nodeIDLen, nodeID, addrLen, addr(4), count,
 	// class(2), txtCount, keyLen, key, valLen, val, ...
 	nodeID := []byte{0x90, 0x56, 0x82, 0x9F, 0x02, 0x78}
-	addr := net.IPv4(192, 168, 1, 10).To4()
+	addr := net.IPv4(192, 0, 2, 10).To4()
 
 	msg := make([]byte, 0, 64)
 	msg = append(msg, 0)   // placeholder len
@@ -52,7 +52,7 @@ func TestParseLSDPAnnounce(t *testing.T) {
 	if len(announces) != 1 {
 		t.Fatalf("announces=%d", len(announces))
 	}
-	if announces[0].Address.String() != "192.168.1.10" {
+	if announces[0].Address.String() != "192.0.2.10" {
 		t.Fatalf("addr=%q", announces[0].Address.String())
 	}
 	if len(announces[0].Records) != 1 {

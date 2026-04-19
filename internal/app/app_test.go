@@ -67,6 +67,34 @@ func TestRunVersionFlag(t *testing.T) {
 	}
 }
 
+func TestRunVersionIgnoresInvalidCacheFile(t *testing.T) {
+	tmp := t.TempDir()
+	t.Setenv("XDG_CACHE_HOME", filepath.Join(tmp, "cache"))
+	t.Setenv("XDG_CONFIG_HOME", filepath.Join(tmp, "config"))
+
+	cachePath := filepath.Join(tmp, "cache", "blu", "discovery.json")
+	if err := os.MkdirAll(filepath.Dir(cachePath), 0o755); err != nil {
+		t.Fatalf("mkdir cache dir: %v", err)
+	}
+	if err := os.WriteFile(cachePath, []byte("{bad json"), 0o644); err != nil {
+		t.Fatalf("write cache: %v", err)
+	}
+
+	Version = "v0.0.0-test"
+	var out bytes.Buffer
+	var errOut bytes.Buffer
+	code := Run(context.Background(), []string{"version"}, &out, &errOut)
+	if code != 0 {
+		t.Fatalf("exit code = %d; stderr=%q", code, errOut.String())
+	}
+	if got := out.String(); got != "v0.0.0-test\n" {
+		t.Fatalf("stdout = %q; want v0.0.0-test", got)
+	}
+	if got := errOut.String(); strings.Contains(got, "cache:") {
+		t.Fatalf("stderr = %q; want no cache load fatal", got)
+	}
+}
+
 func TestRunHelpFlag(t *testing.T) {
 	t.Parallel()
 

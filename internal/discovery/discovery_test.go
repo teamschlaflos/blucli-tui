@@ -15,7 +15,7 @@ func TestDeviceFromEntry(t *testing.T) {
 			Service: "_musc._tcp",
 		},
 		Port:     11000,
-		AddrIPv4: []net.IP{net.ParseIP("192.168.1.10")},
+		AddrIPv4: []net.IP{net.ParseIP("192.0.2.10")},
 		Text:     []string{"version=4.2.1"},
 	}
 
@@ -29,7 +29,28 @@ func TestDeviceFromEntry(t *testing.T) {
 	if device.Version != "4.2.1" {
 		t.Fatalf("Version = %q; want 4.2.1", device.Version)
 	}
-	if device.ID != "192.168.1.10:11000" {
-		t.Fatalf("ID = %q; want 192.168.1.10:11000", device.ID)
+	if device.ID != "192.0.2.10:11000" {
+		t.Fatalf("ID = %q; want 192.0.2.10:11000", device.ID)
+	}
+}
+
+func TestDeviceFromEntryEscapedInstanceName(t *testing.T) {
+	t.Parallel()
+
+	entry := &zeroconf.ServiceEntry{
+		ServiceRecord: zeroconf.ServiceRecord{
+			Service:  "_musc._tcp",
+			Instance: "Player\\032\\195\\156",
+		},
+		Port:     11000,
+		AddrIPv4: []net.IP{net.ParseIP("192.0.2.11")},
+	}
+
+	device, ok := deviceFromEntry(entry)
+	if !ok {
+		t.Fatalf("deviceFromEntry() ok = false")
+	}
+	if device.Name != "Player Ü" {
+		t.Fatalf("Name = %q; want Player Ü", device.Name)
 	}
 }
