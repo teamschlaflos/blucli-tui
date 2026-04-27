@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 
 run:
   timeout: 5m
@@ -12,10 +12,11 @@ formatters:
     gofumpt:
       extra-rules: true
     goimports:
-      local-prefixes: github.com/steipete/blucli
+      local-prefixes:
+        - github.com/steipete/blucli
 
 linters:
-  disable-all: true
+  default: none
   disable:
     - errcheck
   enable:
@@ -26,9 +27,6 @@ linters:
     - staticcheck
     - unconvert
     - unused
-
-linters-settings: {}
-
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
