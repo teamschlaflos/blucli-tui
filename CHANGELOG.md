@@ -2,6 +2,9 @@
 
 ## 0.1.4 (Unreleased)
 
+- Release config: update GoReleaser archive fields to current v2 names so `goreleaser check` passes.
+- CI: pin Go toolchain to 1.25.10 to clear current standard-library `govulncheck` advisories.
+
 ## 0.1.3 (2025-12-17)
 
 - Device selection: accept discovery names for `--device`/`BLU_DEVICE` (no config aliases needed).
